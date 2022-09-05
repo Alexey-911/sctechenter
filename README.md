@@ -26,7 +26,7 @@ It is composed by 4 containers:
 6. Use the following value for the DATABASE_URL environment variable:
 
 ```
-DATABASE_URL=mysql://app_user:helloworld@db:3306/app_db?serverVersion=8.0.23
+DATABASE_URL=mysql://app_user:nopassword@db:3306/app_db?serverVersion=8.0.23
 ```
 
 You could change the name, user and password of the database in the `env` file at the root of the project.
