@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14.5-alpine3.16
+    restart: on-failure
+    environment:
+      POSTGRES_DB: scdatabase
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: nopassword
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+    ports:
+      - "5432:5432"
+
+  php:
+    build:
+      context: .
+      target: app_php
+    image: sf-docker/php:dev
+    restart: on-failure
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 1
+      PHP_DATE_TIMEZONE: ${PHP_DATE_TIMEZONE:-UTC}
+      XDEBUG_CONFIG: remote_host=host.docker.internal
+      PHP_IDE_CONFIG: serverName=localhost
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app:rw,cached
+      - var:/app/var
+
+  nginx:
+    build:
+      context: .
+      target: app_nginx
+    image: sf-docker/nginx:dev
+    restart: on-failure
+    depends_on:
+      - php
+    volumes:
+      - ./public:/app/public:ro
+    ports:
+      - "8080:80"
+
+####> doctrine/doctrine-bundle ###
+#  database:
+#    image: postgres:${POSTGRES_VERSION:-14}-alpine
+#    environment:
+#      POSTGRES_DB: ${POSTGRES_DB:-app}
+#      # You should definitely change the password in production
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+#      POSTGRES_USER: ${POSTGRES_USER:-app}
+#    volumes:
+#      - db-data:/var/lib/postgresql/data:rw
+#      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+#      # - ./docker/db/data:/var/lib/postgresql/data:rw
+####< doctrine/doctrine-bundle ###
+
+volumes:
+  db-data:
+  var:
+

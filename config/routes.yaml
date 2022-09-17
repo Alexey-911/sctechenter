@@ -1,3 +1,8 @@
 controllers:
     resource: ../src/Controller/
     type: attribute
+
+message_show:
+    path: /message/{id}
+    controller: App\Controller\MessageController::showAction
+    methods: [GET]
